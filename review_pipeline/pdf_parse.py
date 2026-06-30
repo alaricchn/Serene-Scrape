@@ -110,9 +110,15 @@ class Review:
 # --------------------------------------------------------------------------- #
 # Low-level helpers
 # --------------------------------------------------------------------------- #
-def _read_pdf_text(path: Path) -> str:
-    """Extract every page's text and normalise whitespace to single spaces."""
-    reader = PdfReader(str(path))
+def _read_pdf_text(src) -> str:
+    """
+    Extract every page's text and normalise whitespace to single spaces.
+
+    `src` may be a filesystem path (str / Path) or an in-memory binary stream
+    (e.g. a Streamlit UploadedFile / BytesIO), so the same logic serves both the
+    CLI (local folder) and the web app (uploaded files).
+    """
+    reader = PdfReader(str(src) if isinstance(src, (str, Path)) else src)
     raw = " ".join((page.extract_text() or "") for page in reader.pages)
     raw = raw.replace(" ", " ")            # non-breaking spaces
     raw = raw.replace("ﬁ", "fi")           # "ﬁ" ligature seen in "Beneﬁts"
@@ -353,23 +359,35 @@ def _dedup_key(r: Review) -> tuple:
     return (r.date_iso, r.title.lower()[:40], snippet)
 
 
+def _parse_one(text: str) -> list[Review]:
+    """Pick the right parser for one PDF's text and return its reviews."""
+    parser = _parse_glassdoor if _is_glassdoor(text) else _parse_indeed
+    return parser(text)
+
+
+def _dedup_and_sort(all_reviews: list[Review]) -> list[Review]:
+    """Drop repeated reviews (PDFs duplicate some) and sort by date."""
+    seen: dict[tuple, Review] = {}
+    for r in all_reviews:
+        seen.setdefault(_dedup_key(r), r)
+    return sorted(seen.values(), key=lambda r: r.date_iso)
+
+
+def parse_sources(sources) -> list[Review]:
+    """
+    Parse an iterable of PDF sources. Each source may be a path or an in-memory
+    binary stream (so this serves both the CLI and the uploaded-file web app).
+    """
+    all_reviews: list[Review] = []
+    for src in sources:
+        all_reviews.extend(_parse_one(_read_pdf_text(src)))
+    return _dedup_and_sort(all_reviews)
+
+
 def parse_pdfs(data_dir: str | Path) -> list[Review]:
     """Parse every PDF in `data_dir` and return de-duplicated, sorted reviews."""
     data_dir = Path(data_dir)
     pdfs = sorted(data_dir.glob("*.pdf"))
     if not pdfs:
         raise FileNotFoundError(f"No PDF files found in {data_dir}")
-
-    all_reviews: list[Review] = []
-    for pdf in pdfs:
-        text = _read_pdf_text(pdf)
-        parser = _parse_glassdoor if _is_glassdoor(text) else _parse_indeed
-        all_reviews.extend(parser(text))
-
-    # De-duplicate (PDFs repeat reviews, and some overlap across files).
-    seen: dict[tuple, Review] = {}
-    for r in all_reviews:
-        seen.setdefault(_dedup_key(r), r)
-
-    reviews = sorted(seen.values(), key=lambda r: r.date_iso)
-    return reviews
+    return parse_sources(pdfs)

@@ -294,7 +294,7 @@
     "rating": null,
     "rating_basis": "none",
     "full_text": "I enjoy being able to show my skills. Leery of the micromanagement What is the best part of working at the company? It’s new and room for growth. There is lots of room to move up as the company is growing. What is the most stressful part about working at the company? Micro management. They say that they don’t but they do. Many supervisors have pet peeves that are unrealistic in the environment. What is the work environment and culture like at the company? It is business like and employees are expected to dress as such. No casual days except Fridays and they still wish to control what we wear down to what shoes are allowed. However, they seem to be successful at what they do and it’s exciting to be a part of a growing organization. What is a typical day like for you at the company? Very busy from start to finish.",
-    "sentiment": "positive",
+    "sentiment": "negative",
     "vader_compound": 0.983,
     "themes": [
       "Management & Leadership",
@@ -421,7 +421,7 @@
     "rating": null,
     "rating_basis": "none",
     "full_text": "This job is not worth the pay or mental health If you love micromanagement, long unnecessary morning meetings, and manipulations, this is the place for you. Working here has affected my mental health. They are always asking for money for donations or work events. This is not a good pay job especially if they keep asking for money for donations or events. The only good thing about this place is that some coworkers are nice. THIS JOB IS NOT WORTH THE PAY OR MENTAL HEALTH.",
-    "sentiment": "positive",
+    "sentiment": "negative",
     "vader_compound": 0.2833,
     "themes": [
       "Management & Leadership",
@@ -769,7 +769,7 @@
     "rating": null,
     "rating_basis": "none",
     "full_text": "Do not work here Terrible management, turnover, and lack of training. Nepotism and unqualified personnel. They don’t care about the patients, just the money and your numbers. Cameras to watch you work. Only upside were some of the coworkers who cared, stick together and last until you find another job!",
-    "sentiment": "positive",
+    "sentiment": "negative",
     "vader_compound": 0.7612,
     "themes": [
       "Management & Leadership",
@@ -1300,7 +1300,7 @@
     "rating": null,
     "rating_basis": "none",
     "full_text": "Would not recommend to anyone Great job if you need something quick but do not plan on being there more than 3 months. Turnover rate is insane, micromanagement from leadership is very intense.",
-    "sentiment": "neutral",
+    "sentiment": "negative",
     "vader_compound": -0.1693,
     "themes": [
       "Management & Leadership",
@@ -1480,7 +1480,7 @@
     "rating": null,
     "rating_basis": "none",
     "full_text": "Toxic micromanagement Save your time and energy and look elsewhere. No-one is happy. Everyone there is either looking for another job, just started or both. The insane turnover itself speaks volumes. Its all about numbers . You feel more like a telemarketer than real care manager helping people.",
-    "sentiment": "positive",
+    "sentiment": "negative",
     "vader_compound": 0.9259,
     "themes": [
       "Management & Leadership",
@@ -1744,7 +1744,7 @@
     "rating": null,
     "rating_basis": "none",
     "full_text": "The Worst /Receptionist Micromanagement all the way from the top. Do not work here. If you are currently there, run away. To top it all of the office AC does not even work. There is always issues with the restroom as well.",
-    "sentiment": "neutral",
+    "sentiment": "negative",
     "vader_compound": -0.1027,
     "themes": [
       "Management & Leadership",

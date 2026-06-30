@@ -18,7 +18,9 @@ import argparse
 import webbrowser
 from pathlib import Path
 
-from review_pipeline import parse_pdfs, add_sentiment, add_themes, build_outputs
+from review_pipeline import (
+    parse_pdfs, add_sentiment, apply_overrides, add_themes, build_outputs,
+)
 
 HERE = Path(__file__).resolve().parent
 
@@ -29,6 +31,9 @@ def run(data_dir: Path, output_dir: Path, open_browser: bool = False) -> None:
     print(f"  parsed {len(reviews)} unique reviews")
 
     add_sentiment(reviews)
+    n_over = apply_overrides(reviews)
+    if n_over:
+        print(f"  applied {n_over} manual sentiment override(s)")
     add_themes(reviews)
 
     neg = sum(r.sentiment == "negative" for r in reviews)

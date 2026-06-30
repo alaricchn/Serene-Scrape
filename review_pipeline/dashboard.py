@@ -19,6 +19,7 @@ drawn with Chart.js (loaded from a CDN); the table works with or without it.
 from __future__ import annotations
 
 import csv
+import io
 import json
 from collections import Counter, defaultdict
 from pathlib import Path
@@ -63,33 +64,16 @@ def _theme_counts(reviews, sentiment: str) -> list[list]:
     return [[theme, n] for theme, n in counter.most_common()]
 
 
-def build_outputs(reviews, output_dir: str | Path) -> Path:
-    output_dir = Path(output_dir)
-    output_dir.mkdir(parents=True, exist_ok=True)
+CSV_FIELDS = [
+    "date_iso", "date_display", "source", "rating", "rating_basis",
+    "sentiment", "vader_compound", "themes", "title", "job_title",
+    "location", "employment", "pros", "cons", "body", "advice",
+]
 
-    rows = [r.to_dict() for r in reviews]
 
-    # ---- reviews.json ----
-    (output_dir / "reviews.json").write_text(
-        json.dumps(rows, indent=2, ensure_ascii=False), encoding="utf-8"
-    )
-
-    # ---- reviews.csv ----
-    csv_fields = [
-        "date_iso", "date_display", "source", "rating", "rating_basis",
-        "sentiment", "vader_compound", "themes", "title", "job_title",
-        "location", "employment", "pros", "cons", "body", "advice",
-    ]
-    with (output_dir / "reviews.csv").open("w", newline="", encoding="utf-8-sig") as fh:
-        writer = csv.DictWriter(fh, fieldnames=csv_fields, extrasaction="ignore")
-        writer.writeheader()
-        for row in rows:
-            row = dict(row)
-            row["themes"] = "; ".join(row.get("themes", []))
-            writer.writerow(row)
-
-    # ---- dashboard.html ----
-    payload = {
+def compute_payload(reviews) -> dict:
+    """All aggregates the dashboard needs (summary, timeline, themes, rows)."""
+    return {
         "summary": _summary(reviews),
         "timeline": _timeline(reviews),
         "themes_negative": _theme_counts(reviews, "negative"),
@@ -111,11 +95,38 @@ def build_outputs(reviews, output_dir: str | Path) -> Path:
         ],
     }
 
-    html = _HTML_TEMPLATE.replace(
-        "/*__DATA__*/", json.dumps(payload, ensure_ascii=False)
-    )
+
+def to_json(reviews) -> str:
+    """Full structured data as a JSON string."""
+    return json.dumps([r.to_dict() for r in reviews], indent=2, ensure_ascii=False)
+
+
+def to_csv(reviews) -> str:
+    """Clean, chronological table as a CSV string."""
+    buf = io.StringIO()
+    writer = csv.DictWriter(buf, fieldnames=CSV_FIELDS, extrasaction="ignore")
+    writer.writeheader()
+    for r in reviews:
+        row = r.to_dict()
+        row["themes"] = "; ".join(row.get("themes", []))
+        writer.writerow(row)
+    return buf.getvalue()
+
+
+def build_html(reviews) -> str:
+    """The self-contained HTML dashboard as a string (data embedded inline)."""
+    payload = compute_payload(reviews)
+    return _HTML_TEMPLATE.replace("/*__DATA__*/", json.dumps(payload, ensure_ascii=False))
+
+
+def build_outputs(reviews, output_dir: str | Path) -> Path:
+    """Write reviews.json, reviews.csv and dashboard.html to `output_dir`."""
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    (output_dir / "reviews.json").write_text(to_json(reviews), encoding="utf-8")
+    (output_dir / "reviews.csv").write_text(to_csv(reviews), encoding="utf-8-sig")
     out = output_dir / "dashboard.html"
-    out.write_text(html, encoding="utf-8")
+    out.write_text(build_html(reviews), encoding="utf-8")
     return out
 
 

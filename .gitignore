@@ -1,0 +1,12 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Generated CLI outputs (the Streamlit app builds these in-memory)
+output/
+
+# OS / editor
+.DS_Store
+.streamlit/secrets.toml
